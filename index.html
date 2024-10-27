@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API - SEGUROS</title>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <section>
+    <div class="container">
+      <div id="bloco-cep" class="item">
+        <label for="cep">Digite o CEP: </label>
+        <input type="text" name="cep" id="cep" placeholder="Digite seu CEP">
+      </div>
+      <div id="bloco-fipe" class="item">
+        <label for="fipe">Digite o código Fipe: </label>
+        <input type="text" name="fipe" id="fipe" placeholder="Digite o código Fipe">
+      </div>
+      <div class="item">
+        <button id="btn">Enviar</button>
+      </div>
+      <div class="resposta">
+        <div id="endereco">
+          Resposta
+        </div>
+        <div id="seucarro">
+
+        </div>
+        <div id="mensagem">
+
+        </div>
+      </div>
+
+  </section>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+  <script>
+
+    $(document).ready(function () {
+
+      $("#btn").click(function () {
+        let cep = $("#cep").val();
+        let urlcep = "https://brasilapi.com.br/api/cep/v1/" + cep;
+
+        let fipe = $("#fipe").val();
+        let urlfipe = "https://brasilapi.com.br/api/fipe/preco/v1/" + fipe;
+
+
+        $.get(urlcep, function (data) {
+          let logradouro = data.street + ", " + data.neighborhood + ", " + data.city + " - " + data.state; // Pega todo o endereço a partir do CEP
+          let estado = data.state;  // Faz a requisição para a API DE CEP e busca o estado. Ele vai retornar o estado com duas letras maiúsculas
+
+          // Fazer a requisição para buscar o valor do carro pela FIPE
+          $.get(urlfipe, function (data) {
+            let carroano = data[0].anoModelo;
+            let carromodelo = data[0].modelo;
+            let valorcarromoeda = data[0].valor;
+            let valorcarro = +data[0].valor.replace("R$ ", "").replace(".", "").replace(",", ".");
+
+
+
+            // Eu preciso colocar a condição dentro desse segundo get, pois só aqui eu garanto que as duas requisições foram feitas.
+            if (estado == "RJ" && valorcarro > 30000) {
+              $("#endereco").html("Seu endereço é: " + logradouro);
+              $("#seucarro").html("Seu carro é: " + carromodelo + " ANO " + carroano + ". Com o valor de mercado " + valorcarromoeda);
+              $("#mensagem").html("SEU SEGURO FOI LIBERADO");
+              $("#mensagem").css("color", "green");
+            } else {
+              $("#endereco").html("Seu endereço é: " + logradouro);
+              $("#seucarro").html("Seu carro é: " + carromodelo + " ANO " + carroano + ". Com o valor de mercado " + valorcarromoeda);
+              $("#mensagem").html("INFELIZMENTE SEU SEGURO NÃO FOI ACEITO");
+              $("#mensagem").css("color", "red");
+            }
+          });
+
+        });
+
+      });
+
+    });
+
+
+  </script>
+</body>
+
+</html>
